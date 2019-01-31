@@ -1,7 +1,12 @@
 package main
 
-import convvls "github.com/loivis/convolvulus-update"
+import (
+	convvls "github.com/loivis/convolvulus-update"
+)
 
 func main() {
-	convvls.Update(nil, nil)
+	m := convvls.Message{
+		Data: []byte(`[{"title": "foo"}]`),
+	}
+	_ = convvls.Update(nil, m)
 }

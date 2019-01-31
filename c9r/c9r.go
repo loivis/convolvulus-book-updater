@@ -4,9 +4,19 @@ import (
 	"time"
 )
 
-// Site .
-type Site interface {
-	Update(t time.Time) []*Book
+// Left .
+type Left interface {
+	Update(*Book)
+}
+
+// Right
+type Right interface {
+	Update(*Book) (hasUpdate bool)
+}
+
+type Store interface {
+	Get(b *Book) *Book
+	Put(b *Book) error
 }
 
 // Book includes more infomation of a book

@@ -1,6 +1,0 @@
-indexes:
-  - kind: book
-    properties:
-      - name: Site
-      - name: Update
-        direction: desc
