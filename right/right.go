@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/loivis/convolvulus-book-updater/c9r"
+	"github.com/loivis/convolvulus-update/c9r"
 )
 
 // Searcher .

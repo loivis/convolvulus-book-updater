@@ -1,4 +1,4 @@
-module github.com/loivis/convolvulus-book-updater
+module github.com/loivis/convolvulus-update
 
 require (
 	cloud.google.com/go v0.35.1

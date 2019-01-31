@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
-	"github.com/loivis/convolvulus-book-updater/c9r"
-	"github.com/loivis/convolvulus-book-updater/httpx"
+	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/httpx"
 )
 
 // Site .

@@ -7,11 +7,11 @@ import (
 	"os"
 	"sync"
 
-	"github.com/loivis/convolvulus-book-updater/c9r"
-	"github.com/loivis/convolvulus-book-updater/right"
-	"github.com/loivis/convolvulus-book-updater/right/qidian"
-	"github.com/loivis/convolvulus-book-updater/right/zongheng"
-	"github.com/loivis/convolvulus-book-updater/store"
+	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/right"
+	"github.com/loivis/convolvulus-update/right/qidian"
+	"github.com/loivis/convolvulus-update/right/zongheng"
+	"github.com/loivis/convolvulus-update/store"
 )
 
 var logger = log.New(os.Stderr, "", 0)

@@ -3,7 +3,7 @@ package mock
 import (
 	"time"
 
-	"github.com/loivis/convolvulus-book-updater/c9r"
+	"github.com/loivis/convolvulus-update/c9r"
 )
 
 // Site is a mock of c9r.Site

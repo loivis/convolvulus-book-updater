@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"cloud.google.com/go/datastore"
-	"github.com/loivis/convolvulus-book-updater/c9r"
+	"github.com/loivis/convolvulus-update/c9r"
 )
 
 type Store struct {
