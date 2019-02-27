@@ -7,18 +7,10 @@ import (
 	"time"
 )
 
-func DeduplicateBooks(in []*Book) (out []*Book) {
-	added := make(map[*Book]bool)
-	for _, book := range in {
-		if _, ok := added[book]; ok {
-			continue
-		}
+var Location *time.Location
 
-		added[book] = true
-		out = append(out, book)
-	}
-
-	return
+func init() {
+	Location, _ = time.LoadLocation("Asia/Shanghai")
 }
 
 func ParseDate(str string) time.Time {

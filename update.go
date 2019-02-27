@@ -8,13 +8,21 @@ import (
 	"log"
 	"sync"
 
+	"github.com/loivis/convolvulus-update/mem"
+
 	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/right/qidian"
 )
 
-var s *service
+var svc *service
 
 func init() {
-	s = &service{}
+	svc = &service{
+		Right: map[string]c9r.Right{
+			"起点中文网": qidian.New(),
+		},
+		Store: mem.NewStore(),
+	}
 }
 
 type Message struct {
@@ -33,7 +41,7 @@ func Update(ctx context.Context, m Message) error {
 
 	for _, book := range books {
 		go func(b c9r.Book) {
-			s.update(b)
+			svc.update(b)
 			wg.Done()
 		}(book)
 	}
@@ -49,21 +57,21 @@ type service struct {
 	Store c9r.Store
 }
 
-func (s *service) update(b c9r.Book) error {
-	if _, ok := s.Right[b.Site]; !ok {
+func (svc *service) update(b c9r.Book) error {
+	if _, ok := svc.Right[b.Site]; !ok {
 		return errors.New(fmt.Sprintf("%q doesn't exist", b.Site))
 	}
 
-	hasUpdate := s.Right[b.Site].Update(&b)
-
-	if !hasUpdate {
-		return nil
+	err := svc.Right[b.Site].Update(&b)
+	if err != nil {
+		return err
 	}
 
+	// TODO: update missing and remove non-existing
 	var wg sync.WaitGroup
-	wg.Add(len(s.Left))
+	wg.Add(len(svc.Left))
 
-	for _, site := range s.Left {
+	for _, site := range svc.Left {
 		go func(site c9r.Left) {
 			site.Update(&b)
 			wg.Done()
@@ -72,9 +80,11 @@ func (s *service) update(b c9r.Book) error {
 
 	wg.Wait()
 
-	if err := s.Store.Put(&b); err != nil {
+	if err := svc.Store.Put(&b); err != nil {
 		return err
 	}
+
+	log.Println(svc.Store.Get(&c9r.Book{Site: "起点中文网", ID: "1013723616"}))
 
 	return nil
 }

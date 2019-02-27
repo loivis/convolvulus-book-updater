@@ -6,21 +6,21 @@ import (
 
 // Left is a mock of c9r.Left
 type Left struct {
-	UpdateFunc func(b *c9r.Book)
+	UpdateFunc func(b *c9r.Book) error
 }
 
 // Update .
-func (s *Left) Update(b *c9r.Book) {
-	s.UpdateFunc(b)
+func (s *Left) Update(b *c9r.Book) error {
+	return s.UpdateFunc(b)
 }
 
 // Right is a mock of c9r.Right
 type Right struct {
-	UpdateFunc func(b *c9r.Book) bool
+	UpdateFunc func(b *c9r.Book) error
 }
 
 // Update .
-func (s *Right) Update(b *c9r.Book) bool {
+func (s *Right) Update(b *c9r.Book) error {
 	return s.UpdateFunc(b)
 }
 

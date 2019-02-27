@@ -5,45 +5,7 @@ import (
 	"time"
 )
 
-func TestDeduplicateBook(t *testing.T) {
-	b1 := &Book{Title: "b1"}
-	b2 := &Book{Title: "b2"}
-	b3 := &Book{Title: "b3"}
-	for _, tc := range []struct {
-		desc string
-		in   []*Book
-		out  []*Book
-	}{
-		{
-			desc: "EmptyInput",
-			in:   []*Book{},
-			out:  []*Book{},
-		},
-		{
-			desc: "DistinctInput",
-			in:   []*Book{b1, b2, b3},
-			out:  []*Book{b1, b2, b3},
-		},
-		{
-			desc: "DuplicatedInput",
-			in:   []*Book{b1, b2, b1, b3, b2, b3, b1},
-			out:  []*Book{b1, b2, b3},
-		},
-	} {
-		gotBooks := DeduplicateBooks(tc.in)
-		if got, want := len(gotBooks), len(tc.out); got != want {
-			t.Fatalf("got %d books, want %d", got, want)
-		}
-
-		for n := range gotBooks {
-			if got, want := gotBooks[n], tc.out[n]; got != want {
-				t.Fatalf("gotBooks[%d] = %v, want %v", n, got, want)
-			}
-		}
-	}
-}
-
-func TestParseUpdate(t *testing.T) {
+func TestParseDate(t *testing.T) {
 	for _, tc := range []struct {
 		desc string
 		in   string

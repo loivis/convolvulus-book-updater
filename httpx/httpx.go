@@ -2,7 +2,7 @@ package httpx
 
 import "net/http"
 
-const userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36"
+const userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.96 Safari/537.36"
 
 // Get performs http.MethodGet with custom User-Agent
 func Get(url string) (*http.Response, error) {
