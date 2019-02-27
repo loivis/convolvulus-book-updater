@@ -48,4 +48,18 @@ func TestService_Update(t *testing.T) {
 			t.Fatalf("got book = %+v, want %+v", got, want)
 		}
 	})
+
+	t.Run("NonExistingSite", func(t *testing.T) {
+		s := &service{Right: make(map[string]c9r.Right)}
+		b := c9r.Book{Site: "foo"}
+
+		err := s.update(b)
+		if err == nil {
+			t.Fatalf("err is nil")
+		}
+
+		if got, want := err.Error(), "\"foo\" doesn't exist"; got != want {
+			t.Fatalf("got err = %q, want %q", got, want)
+		}
+	})
 }

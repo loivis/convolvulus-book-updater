@@ -3,6 +3,8 @@ package convvls
 import (
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
 	"sync"
 
@@ -48,6 +50,10 @@ type service struct {
 }
 
 func (s *service) update(b c9r.Book) error {
+	if _, ok := s.Right[b.Site]; !ok {
+		return errors.New(fmt.Sprintf("%q doesn't exist", b.Site))
+	}
+
 	hasUpdate := s.Right[b.Site].Update(&b)
 
 	if !hasUpdate {
