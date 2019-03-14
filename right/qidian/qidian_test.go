@@ -1,8 +1,6 @@
 package qidian
 
 import (
-	"net/http"
-	"net/http/httptest"
 	"testing"
 	"time"
 
@@ -34,15 +32,6 @@ func TestNew(t *testing.T) {
 			t.Fatalf("s.chapterLink = %q, want %q", got, want)
 		}
 	})
-}
-
-func TestSite_Update(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-	}))
-	b := &c9r.Book{ID: "foo-id", Site: "foo-site"}
-	s := New(WithChapterLink(ts.URL + "/%s"))
-	s.Update(b)
-	t.Fatal("foo")
 }
 
 func TestParseUpdate(t *testing.T) {

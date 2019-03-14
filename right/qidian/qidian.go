@@ -3,13 +3,10 @@ package qidian
 import (
 	"errors"
 	"fmt"
-	"log"
 	"time"
 
-	"github.com/PuerkitoBio/goquery"
-	"github.com/loivis/convolvulus-update/httpx"
-
 	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/http"
 )
 
 // Site .
@@ -41,16 +38,8 @@ func WithChapterLink(l string) func(*Site) {
 // Update .
 func (s *Site) Update(b *c9r.Book) error {
 	url := fmt.Sprintf(s.chapterLink, b.ID)
-	resp, err := httpx.Get(url)
+	doc, err := http.GetDoc(url)
 	if err != nil {
-		log.Printf("failed to get %q: %v", url, err)
-		return err
-	}
-	defer resp.Body.Close()
-
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		log.Println(err)
 		return err
 	}
 
