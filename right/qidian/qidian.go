@@ -11,6 +11,7 @@ import (
 
 // Site .
 type Site struct {
+	home        string
 	name        string
 	chapterLink string
 }
@@ -18,6 +19,7 @@ type Site struct {
 // New returns an instance of Site
 func New(opts ...func(*Site)) *Site {
 	s := &Site{
+		home:        "https://www.qidian.com",
 		name:        "起点中文网",
 		chapterLink: "https://book.qidian.com/info/%s#Catalog",
 	}

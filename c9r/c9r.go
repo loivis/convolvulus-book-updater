@@ -1,12 +1,13 @@
 package c9r
 
 import (
+	"sync"
 	"time"
 )
 
 // Left .
 type Left interface {
-	Update(*Book) error
+	Find(name string) Source
 }
 
 // Right
@@ -21,12 +22,19 @@ type Store interface {
 
 // Book includes more infomation of a book
 type Book struct {
-	Author  string    `json:"author,omitempty"`
-	ID      string    `json:"id,omitempty"`
-	Site    string    `json:"site,omitempty"`
-	Title   string    `json:"title,omitempty"`
-	Update  time.Time `json:"update,omitempty"`
-	Sources []Source  `json:"sources,omitempty"`
+	Author string    `json:"author,omitempty"`
+	ID     string    `json:"id,omitempty"`
+	Site   string    `json:"site,omitempty"`
+	Title  string    `json:"title,omitempty"`
+	Update time.Time `json:"update,omitempty"`
+
+	SourcesMu sync.Mutex `json:"-"`
+	Sources   []*Source  `json:"sources,omitempty"`
+}
+
+type Source struct {
+	Site        string
+	ChapterLink string
 }
 
 func (b1 *Book) Equals(b2 *Book) bool {
@@ -50,9 +58,4 @@ func (b1 *Book) Equals(b2 *Book) bool {
 	}
 
 	return (authorEq && idEq && siteEq && titleEq && updateEq && sourcesEq)
-}
-
-type Source struct {
-	Site string
-	ID   string
 }

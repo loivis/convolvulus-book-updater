@@ -6,12 +6,12 @@ import (
 
 // Left is a mock of c9r.Left
 type Left struct {
-	UpdateFunc func(b *c9r.Book) error
+	FindFunc func(string) c9r.Source
 }
 
-// Update .
-func (s *Left) Update(b *c9r.Book) error {
-	return s.UpdateFunc(b)
+// Find .
+func (s *Left) Find(name string) c9r.Source {
+	return s.FindFunc(name)
 }
 
 // Right is a mock of c9r.Right

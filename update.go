@@ -3,11 +3,11 @@ package convvls
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"sync"
 
+	"github.com/loivis/convolvulus-update/left/piaotian"
 	"github.com/loivis/convolvulus-update/mem"
 
 	"github.com/loivis/convolvulus-update/c9r"
@@ -21,6 +21,9 @@ func init() {
 		Right: map[string]c9r.Right{
 			"起点中文网": qidian.New(),
 		},
+		Left: map[string]c9r.Left{
+			"飘天文学网": piaotian.New(),
+		},
 		Store: mem.NewStore(),
 	}
 }
@@ -30,7 +33,7 @@ type Message struct {
 }
 
 func Update(ctx context.Context, m Message) error {
-	var books []c9r.Book
+	var books []*c9r.Book
 
 	if err := json.Unmarshal(m.Data, &books); err != nil {
 		log.Fatal(err)
@@ -40,7 +43,7 @@ func Update(ctx context.Context, m Message) error {
 	wg.Add(len(books))
 
 	for _, book := range books {
-		go func(b c9r.Book) {
+		go func(b *c9r.Book) {
 			svc.update(b)
 			wg.Done()
 		}(book)
@@ -57,12 +60,12 @@ type service struct {
 	Store c9r.Store
 }
 
-func (svc *service) update(b c9r.Book) error {
+func (svc *service) update(b *c9r.Book) error {
 	if _, ok := svc.Right[b.Site]; !ok {
-		return errors.New(fmt.Sprintf("%q doesn't exist", b.Site))
+		return fmt.Errorf("%q doesn't exist", b.Site)
 	}
 
-	err := svc.Right[b.Site].Update(&b)
+	err := svc.Right[b.Site].Update(b)
 	if err != nil {
 		return err
 	}
@@ -73,18 +76,30 @@ func (svc *service) update(b c9r.Book) error {
 
 	for _, site := range svc.Left {
 		go func(site c9r.Left) {
-			site.Update(&b)
-			wg.Done()
+			defer wg.Done()
+
+			source := site.Find(b.Title)
+			if source.ChapterLink == "" {
+				return
+			}
+
+			b.SourcesMu.Lock()
+			b.Sources = append(b.Sources, &source)
+			b.SourcesMu.Unlock()
 		}(site)
 	}
 
 	wg.Wait()
 
-	if err := svc.Store.Put(&b); err != nil {
+	if err := svc.Store.Put(b); err != nil {
 		return err
 	}
 
-	log.Println(svc.Store.Get(&c9r.Book{Site: "起点中文网", ID: "1013723616"}))
+	b = svc.Store.Get(&c9r.Book{Site: "起点中文网", ID: "1013723616"})
+	log.Println(b)
+	for _, source := range b.Sources {
+		log.Println(source)
+	}
 
 	return nil
 }
