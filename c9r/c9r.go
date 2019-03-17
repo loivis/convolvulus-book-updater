@@ -1,6 +1,9 @@
 package c9r
 
 import (
+	"context"
+	"crypto/sha1"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -12,29 +15,29 @@ type Left interface {
 
 // Right
 type Right interface {
-	Update(*Book) error
+	Update(b *Book) error
 }
 
 type Store interface {
-	Get(b *Book) *Book
-	Put(b *Book) error
+	Get(ctx context.Context, b *Book) (*Book, error)
+	Put(ctx context.Context, b *Book) error
 }
 
 // Book includes more infomation of a book
 type Book struct {
-	Author string    `json:"author,omitempty"`
-	ID     string    `json:"id,omitempty"`
-	Site   string    `json:"site,omitempty"`
-	Title  string    `json:"title,omitempty"`
-	Update time.Time `json:"update,omitempty"`
+	Author string    `json:"author,omitempty" firestore:"author"`
+	ID     string    `json:"id,omitempty" firestore:"id"`
+	Site   string    `json:"site,omitempty" firestore:"site"`
+	Title  string    `json:"title,omitempty" firestore:"title"`
+	Update time.Time `json:"update,omitempty" firestore:"update"`
 
-	SourcesMu sync.Mutex `json:"-"`
-	Sources   []*Source  `json:"sources,omitempty"`
+	SourcesMu sync.Mutex `json:"-" firestore:"-"`
+	Sources   []*Source  `json:"sources,omitempty" firestore:"sources"`
 }
 
 type Source struct {
-	Site        string
-	ChapterLink string
+	Site        string `json:"site,omitempty" firestore:"site"`
+	ChapterLink string `json:"chapter_link,omitempty" firestore:"chapterLink"`
 }
 
 func (b1 *Book) Equals(b2 *Book) bool {
@@ -58,4 +61,11 @@ func (b1 *Book) Equals(b2 *Book) bool {
 	}
 
 	return (authorEq && idEq && siteEq && titleEq && updateEq && sourcesEq)
+}
+
+func (b *Book) DocID() string {
+	h := sha1.New()
+	_, _ = h.Write([]byte(fmt.Sprintf("%s-%s-%s", b.Site, b.Author, b.Title)))
+	bs := h.Sum(nil)
+	return fmt.Sprintf("%x", bs)
 }

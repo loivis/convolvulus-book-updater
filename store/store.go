@@ -2,77 +2,58 @@ package store
 
 import (
 	"context"
-	"time"
+	"log"
+	"os"
 
-	"cloud.google.com/go/datastore"
+	"cloud.google.com/go/firestore"
 	"github.com/loivis/convolvulus-update/c9r"
 )
 
 type Store struct {
-	batchSize int
-	kind      string
-	projectID string
+	collection string
 }
 
-func New(batchSize int, kind, projectID string) *Store {
+var client *firestore.Client
+
+func init() {
+	var err error
+	client, err = firestore.NewClient(context.Background(), os.Getenv("GCP_PROJECT"))
+	if err != nil {
+		log.Fatalf("failed to create firestore client: %v", err)
+	}
+}
+
+func New() *Store {
 	return &Store{
-		batchSize: batchSize,
-		kind:      kind,
-		projectID: projectID,
+		collection: "books",
 	}
 }
 
-func (s *Store) LatestSiteUpdate(ctx context.Context, site string) (time.Time, error) {
-	client, err := datastore.NewClient(ctx, s.projectID)
+func (s *Store) Get(ctx context.Context, b *c9r.Book) (*c9r.Book, error) {
+	snap, err := client.Collection(s.collection).Doc(b.DocID()).Get(ctx)
 	if err != nil {
-		return time.Time{}, err
+		log.Printf("failed to get book(%+v): %v", b, err)
+		return nil, err
 	}
 
-	query := datastore.NewQuery(s.kind).Filter("Site =", site).Order("-Update").Limit(1)
-	var books []*c9r.Book
-	_, err = client.GetAll(ctx, query, &books)
-	if err != nil {
-		return time.Time{}, err
+	var ret *c9r.Book
+	if err := snap.DataTo(&ret); err != nil {
+		return nil, err
 	}
 
-	if len(books) == 0 {
-		return time.Now().Add(-3 * time.Hour).UTC().Truncate(time.Second), nil
-	}
-
-	if time.Since(books[0].Update) > 3*time.Hour {
-		return time.Now().Add(-3 * time.Hour).UTC().Truncate(time.Second), nil
-	}
-
-	return books[0].Update.UTC().Truncate(time.Second), nil
+	return ret, nil
 }
 
-func (s *Store) PutAll(ctx context.Context, books []*c9r.Book) error {
-	client, err := datastore.NewClient(ctx, s.projectID)
+func (s *Store) Put(ctx context.Context, b *c9r.Book) error {
+	id := b.DocID()
+
+	_, err := client.Collection(s.collection).Doc(id).Set(ctx, b)
 	if err != nil {
+		log.Printf("failed to add/update book(%+v): %v", b, err)
 		return err
 	}
 
-	for _, books := range s.splitBooks(books) {
-		var keys []*datastore.Key
-		for _, book := range books {
-			keys = append(keys, datastore.NameKey(s.kind, book.Site+book.Author+book.Title, nil))
-		}
-
-		if _, err := client.PutMulti(ctx, keys, books); err != nil {
-			return err
-		}
-	}
+	log.Printf("book added/updated: %s(%+v)", id, b)
 
 	return nil
-}
-
-// https://github.com/golang/go/wiki/SliceTricks#batching-with-minimal-allocation
-func (s *Store) splitBooks(books []*c9r.Book) [][]*c9r.Book {
-	var batches [][]*c9r.Book
-	for s.batchSize < len(books) {
-		books, batches = books[s.batchSize:], append(batches, books[0:s.batchSize:s.batchSize])
-	}
-	batches = append(batches, books)
-
-	return batches
 }

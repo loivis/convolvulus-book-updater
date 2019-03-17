@@ -1,6 +1,7 @@
 package mem
 
 import (
+	"context"
 	"fmt"
 	"sync"
 
@@ -18,14 +19,14 @@ func NewStore() *Store {
 	}
 }
 
-func (s *Store) Get(b *c9r.Book) *c9r.Book {
+func (s *Store) Get(ctx context.Context, b *c9r.Book) (*c9r.Book, error) {
 	s.booksMu.Lock()
 	out := s.books[key(b)]
 	s.booksMu.Unlock()
-	return &out
+	return &out, nil
 }
 
-func (s *Store) Put(b *c9r.Book) error {
+func (s *Store) Put(ctx context.Context, b *c9r.Book) error {
 	s.booksMu.Lock()
 	s.books[key(b)] = *b
 	s.booksMu.Unlock()
