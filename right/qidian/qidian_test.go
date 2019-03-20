@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/update"
 )
 
 func TestNew(t *testing.T) {
@@ -38,14 +38,14 @@ func TestParseUpdate(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		str := "首发时间：2019-03-14 13:12:54 章节字数：2673"
 
-		update, err := parseUpdate(str)
+		tm, err := parseUpdate(str)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
-		wantUpdate := time.Date(2019, 3, 14, 13, 12, 54, 0, c9r.Location)
+		wantTM := time.Date(2019, 3, 14, 13, 12, 54, 0, update.Location)
 
-		if got, want := update.String(), wantUpdate.String(); got != want {
+		if got, want := tm.String(), wantTM.String(); got != want {
 			t.Fatalf("got update = %q, want %q", got, want)
 		}
 	})

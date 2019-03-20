@@ -10,7 +10,7 @@ import (
 	"github.com/loivis/convolvulus-update/left/piaotian"
 	"github.com/loivis/convolvulus-update/store"
 
-	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/update"
 	"github.com/loivis/convolvulus-update/right/qidian"
 )
 
@@ -18,10 +18,10 @@ var svc *service
 
 func init() {
 	svc = &service{
-		Right: map[string]c9r.Right{
+		Right: map[string]update.Right{
 			"起点中文网": qidian.New(),
 		},
-		Left: map[string]c9r.Left{
+		Left: map[string]update.Left{
 			"飘天文学网": piaotian.New(),
 		},
 		Store: store.New(),
@@ -33,7 +33,7 @@ type Message struct {
 }
 
 func Update(ctx context.Context, m Message) error {
-	var books []*c9r.Book
+	var books []*update.Book
 
 	if err := json.Unmarshal(m.Data, &books); err != nil {
 		log.Fatal(err)
@@ -43,7 +43,7 @@ func Update(ctx context.Context, m Message) error {
 	wg.Add(len(books))
 
 	for _, book := range books {
-		go func(b *c9r.Book) {
+		go func(b *update.Book) {
 			svc.update(b)
 			wg.Done()
 		}(book)
@@ -55,12 +55,12 @@ func Update(ctx context.Context, m Message) error {
 }
 
 type service struct {
-	Left  map[string]c9r.Left
-	Right map[string]c9r.Right
-	Store c9r.Store
+	Left  map[string]update.Left
+	Right map[string]update.Right
+	Store update.Store
 }
 
-func (svc *service) update(b *c9r.Book) error {
+func (svc *service) update(b *update.Book) error {
 	ctx := context.Background()
 
 	if _, ok := svc.Right[b.Site]; !ok {
@@ -77,7 +77,7 @@ func (svc *service) update(b *c9r.Book) error {
 	wg.Add(len(svc.Left))
 
 	for _, site := range svc.Left {
-		go func(site c9r.Left) {
+		go func(site update.Left) {
 			defer wg.Done()
 
 			source := site.Find(b.Title)

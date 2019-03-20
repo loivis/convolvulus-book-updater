@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/update"
 )
 
 func TestStore_Get(t *testing.T) {
 	ctx := context.Background()
-	b := &c9r.Book{ID: "bar", Site: "foo"}
+	b := &update.Book{ID: "bar", Site: "foo"}
 	s := &Store{
-		books: map[string]c9r.Book{
+		books: map[string]update.Book{
 			"foo-bar": *b,
 		},
 	}
@@ -25,8 +25,8 @@ func TestStore_Get(t *testing.T) {
 	})
 
 	t.Run("NonExisting", func(t *testing.T) {
-		gotBook, _ := s.Get(ctx, &c9r.Book{ID: "baz"})
-		wantBook := &c9r.Book{}
+		gotBook, _ := s.Get(ctx, &update.Book{ID: "baz"})
+		wantBook := &update.Book{}
 		if got, want := gotBook, wantBook; !(got).Equals(want) {
 			t.Fatalf("got book = %+v, want %+v", got, want)
 		}
@@ -35,7 +35,7 @@ func TestStore_Get(t *testing.T) {
 
 func TestStore_Put(t *testing.T) {
 	ctx := context.Background()
-	b := &c9r.Book{ID: "bar", Site: "foo"}
+	b := &update.Book{ID: "bar", Site: "foo"}
 	s := NewStore()
 
 	t.Run("Success", func(t *testing.T) {
@@ -55,16 +55,16 @@ func BenchmarkGetPut(b *testing.B) {
 
 	for n := 0; n < b.N; n++ {
 		go func(n int) {
-			s.Get(ctx, &c9r.Book{ID: fmt.Sprintf("%d", n)})
+			s.Get(ctx, &update.Book{ID: fmt.Sprintf("%d", n)})
 		}(n)
 		go func(n int) {
-			s.Put(ctx, &c9r.Book{ID: fmt.Sprintf("%d", n)})
+			s.Put(ctx, &update.Book{ID: fmt.Sprintf("%d", n)})
 		}(n)
 	}
 }
 
 func Test_Key(t *testing.T) {
-	b := c9r.Book{ID: "bar", Site: "foo"}
+	b := update.Book{ID: "bar", Site: "foo"}
 
 	if got, want := key(&b), "foo-bar"; got != want {
 		t.Fatalf("got key = %q, want %q", got, want)

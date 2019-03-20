@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"cloud.google.com/go/firestore"
-	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/update"
 )
 
 type Store struct {
@@ -29,14 +29,14 @@ func New() *Store {
 	}
 }
 
-func (s *Store) Get(ctx context.Context, b *c9r.Book) (*c9r.Book, error) {
+func (s *Store) Get(ctx context.Context, b *update.Book) (*update.Book, error) {
 	snap, err := client.Collection(s.collection).Doc(b.DocID()).Get(ctx)
 	if err != nil {
 		log.Printf("failed to get book(%+v): %v", b, err)
 		return nil, err
 	}
 
-	var ret *c9r.Book
+	var ret *update.Book
 	if err := snap.DataTo(&ret); err != nil {
 		return nil, err
 	}
@@ -44,7 +44,7 @@ func (s *Store) Get(ctx context.Context, b *c9r.Book) (*c9r.Book, error) {
 	return ret, nil
 }
 
-func (s *Store) Put(ctx context.Context, b *c9r.Book) error {
+func (s *Store) Put(ctx context.Context, b *update.Book) error {
 	id := b.DocID()
 
 	_, err := client.Collection(s.collection).Doc(id).Set(ctx, b)

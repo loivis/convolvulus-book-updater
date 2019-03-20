@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/loivis/convolvulus-update/c9r"
 	"github.com/loivis/convolvulus-update/http"
+	"github.com/loivis/convolvulus-update/update"
 )
 
 // Site .
@@ -38,7 +38,7 @@ func WithChapterLink(l string) func(*Site) {
 }
 
 // Update .
-func (s *Site) Update(b *c9r.Book) error {
+func (s *Site) Update(b *update.Book) error {
 	url := fmt.Sprintf(s.chapterLink, b.ID)
 	doc, err := http.GetDoc(url)
 	if err != nil {
@@ -61,15 +61,15 @@ func (s *Site) Update(b *c9r.Book) error {
 
 func parseUpdate(str string) (time.Time, error) {
 	// 首发时间：2019-03-14 13:12:54 章节字数：2673
-	var update time.Time
+	var tm time.Time
 	if len(str) < 50 {
-		return update, errors.New("invalid update string")
+		return tm, errors.New("invalid update string")
 	}
 
-	update, err := time.ParseInLocation("2006-01-02 15:04:05", str[15:34], c9r.Location)
+	tm, err := time.ParseInLocation("2006-01-02 15:04:05", str[15:34], update.Location)
 	if err != nil {
-		return update, err
+		return tm, err
 	}
 
-	return update, nil
+	return tm, nil
 }

@@ -3,7 +3,7 @@ package piaotian
 import (
 	"strings"
 
-	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/update"
 	"github.com/loivis/convolvulus-update/http"
 )
 
@@ -28,8 +28,8 @@ func New(opts ...func(*Site)) *Site {
 	return s
 }
 
-func (s *Site) Find(name string) c9r.Source {
-	source := c9r.Source{Site: s.name}
+func (s *Site) Find(name string) update.Source {
+	source := update.Source{Site: s.name}
 
 	q := name + " site:" + s.home
 	source.ChapterLink = s.getChapterLink(http.Search(q))

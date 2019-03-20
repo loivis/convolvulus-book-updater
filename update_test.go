@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loivis/convolvulus-update/c9r"
+	"github.com/loivis/convolvulus-update/update"
 	"github.com/loivis/convolvulus-update/mem"
 	"github.com/loivis/convolvulus-update/mock"
 )
@@ -14,22 +14,22 @@ func TestService_Update(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("Success", func(t *testing.T) {
-		left := map[string]c9r.Left{
+		left := map[string]update.Left{
 			"l1": &mock.Left{
-				FindFunc: func(string) c9r.Source { return c9r.Source{} },
+				FindFunc: func(string) update.Source { return update.Source{} },
 			},
 			"l2": &mock.Left{
-				FindFunc: func(string) c9r.Source { return c9r.Source{} },
+				FindFunc: func(string) update.Source { return update.Source{} },
 			},
 		}
-		right := map[string]c9r.Right{
+		right := map[string]update.Right{
 			"r1": &mock.Right{
-				UpdateFunc: func(b *c9r.Book) error {
+				UpdateFunc: func(b *update.Book) error {
 					b.Update = time.Date(2018, 2, 3, 0, 0, 0, 0, time.UTC)
 					return nil
 				},
 			},
-			"r2": &mock.Right{UpdateFunc: func(*c9r.Book) error { return nil }},
+			"r2": &mock.Right{UpdateFunc: func(*update.Book) error { return nil }},
 		}
 
 		store := mem.NewStore()
@@ -40,14 +40,14 @@ func TestService_Update(t *testing.T) {
 			Store: store,
 		}
 
-		b := &c9r.Book{Site: "r1"}
+		b := &update.Book{Site: "r1"}
 		err := s.update(b)
 		if err != nil {
 			t.Fatalf("unexpected error: %v", err)
 		}
 
 		gotBook, _ := s.Store.Get(ctx, b)
-		wantBook := &c9r.Book{Site: "r1", Update: time.Date(2018, 2, 3, 0, 0, 0, 0, time.UTC)}
+		wantBook := &update.Book{Site: "r1", Update: time.Date(2018, 2, 3, 0, 0, 0, 0, time.UTC)}
 
 		if got, want := gotBook, wantBook; !(got).Equals(want) {
 			t.Fatalf("got book = %+v, want %+v", got, want)
@@ -55,8 +55,8 @@ func TestService_Update(t *testing.T) {
 	})
 
 	t.Run("NonExistingSite", func(t *testing.T) {
-		s := &service{Right: make(map[string]c9r.Right)}
-		b := &c9r.Book{Site: "foo"}
+		s := &service{Right: make(map[string]update.Right)}
+		b := &update.Book{Site: "foo"}
 
 		err := s.update(b)
 		if err == nil {

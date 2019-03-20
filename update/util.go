@@ -1,4 +1,4 @@
-package c9r
+package update
 
 import (
 	"fmt"
